@@ -12,16 +12,16 @@ import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
+import org.springframework.batch.item.*;
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+
+import java.util.List;
 
 @Configuration
 @Slf4j
@@ -43,18 +43,19 @@ public class LawdInsertJobConfig {
     @Bean("lawdInsertStep")
     @JobScope
     public Step lawdInsertStep(
-            @Qualifier("flatFileItemReader") ItemReader flatFileItemReader
+            @Qualifier("flatFileItemReader") FlatFileItemReader flatFileItemReader,
+            @Qualifier("flatFileItemWriter") ItemWriter flatFileItemWriter
     ){
-        stepBuilderFactory.get("lawdInsertStep")
-                .<LawdDto,Lawd>chunk(1000) //4만 6000개를 천 개씩 처리
+        return stepBuilderFactory.get("lawdInsertStep")
+                .<LawdDto,LawdDto>chunk(1000) //4만 6000개를 천 개씩 처리
                 .reader(flatFileItemReader)
-                .writer()
+                .writer(flatFileItemWriter)
                 .build(); //파일을 읽고 바로 쓰기에 프로세서 x
     }
 
     @Bean("flatFileItemReader")
     @StepScope
-    public ItemReader<LawdDto> flatFileItemReader(@Value("#{jobParameters['filePath']}") String filePath){
+    public FlatFileItemReader<LawdDto> flatFileItemReader(@Value("#{jobParameters['filePath']}") String filePath){
         return new FlatFileItemReaderBuilder<LawdDto>()
                 .name("flatFileItemReader")
                 .delimited() //딜리미터 사용하기 위해서
@@ -66,4 +67,14 @@ public class LawdInsertJobConfig {
                 .build();
     }
 
+    @Bean("flatFileItemWriter")
+    @StepScope
+    public ItemWriter<LawdDto> flatFileItemWriter(){
+        return new ItemWriter<LawdDto>() {
+            @Override
+            public void write(List<? extends LawdDto> items) throws Exception {
+                items.forEach(System.out::println);
+            }
+        };
+    }
 }

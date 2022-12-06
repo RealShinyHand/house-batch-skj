@@ -71,6 +71,86 @@ public class HouseBatchJpaConfig {
 <div>
 아이템 리더 -  package com.fastcapus.housebatchskj.job.lawd; <br/>
 필드 셋 맵퍼 - package com.fastcapus.housebatchskj.job.lawd;<br/>
-바리데이터 - 
+바리데이터 - package com.fastcapus.housebatchskj.job.validator;
+</div>
+<h5>LawDto 를 read하고 write부분에서는 단순 출력만하여 테스트한다.</h5>
+<pre>
+@Configuration
+@Slf4j
+@RequiredArgsConstructor
+public class LawdInsertJobConfig {
+private final JobBuilderFactory jobBuilderFactory;
+private final StepBuilderFactory stepBuilderFactory;
+
+    @Bean(name="lawdInsertJob")
+    public Job lawdInsertJob(
+            @Qualifier("lawdInsertStep") Step lawdInsertStep
+    ){
+        return jobBuilderFactory.get("lawdInsertJob")
+                .incrementer(new RunIdIncrementer())
+                .validator(new FilePathParameterValidator())
+                .start(lawdInsertStep)
+                .build();
+    }
+    @Bean("lawdInsertStep")
+    @JobScope
+    public Step lawdInsertStep(
+            @Qualifier("flatFileItemReader") FlatFileItemReader flatFileItemReader,
+            @Qualifier("flatFileItemWriter") ItemWriter flatFileItemWriter
+    ){
+        return stepBuilderFactory.get("lawdInsertStep")
+                .<LawdDto,LawdDto>chunk(1000) //4만 6000개를 천 개씩 처리
+                .reader(flatFileItemReader)
+                .writer(flatFileItemWriter)
+                .build(); //파일을 읽고 바로 쓰기에 프로세서 x
+    }
+
+    @Bean("flatFileItemReader")
+    @StepScope
+    public FlatFileItemReader<LawdDto> flatFileItemReader(@Value("#{jobParameters['filePath']}") String filePath){
+        return new FlatFileItemReaderBuilder<LawdDto>()
+                .name("flatFileItemReader")
+                .delimited() //딜리미터 사용하기 위해서
+                .delimiter("\t")// 탭으로 구분 1111000000	서울특별시 종로구   존재 탭탭탭으로 구분하는 거 맞음
+                .names(LawdFieldSetMapper.LAWD_CD,LawdFieldSetMapper.LAWD_DONG,LawdFieldSetMapper.EXISTS) //mapper에서 토크나이저한 토큰들에 대해 순서대로 이름을 부여
+                .linesToSkip(1)
+                .fieldSetMapper(new LawdFieldSetMapper())
+                .resource(new ClassPathResource(filePath))
+                .build();
+    }
+
+    @Bean("flatFileItemWriter")
+    @StepScope
+    public ItemWriter<LawdDto> flatFileItemWriter(){
+        return new ItemWriter<LawdDto>() {
+            @Override
+            public void write(List<? extends LawdDto> items) throws Exception {
+                items.forEach(System.out::println);
+            }
+        };
+    }
+}
+</pre>
+<div>
+하다가 매우 이상한 현상을 경험하였다. 토큰나이저 예측이 3인데 실제로는 1이여서 오류가 났었다.
+LAWD_CODE.txt 의 딜리미터가 탭이아니라 공백으로 바껴있는 것이다. ......
+그래서 그냥 파일 다시 받아서 저장 시키닌 탭으로 인식되어 정상작동 하였다. 
+
+프로그램 실행시킬 때의 설정은 다음과 같다. <br/>
+vmOptions : -Dspring.profiles.active=local <br/>
+program Argument : --spring.batch.job.names=lawdInsertJob -filePath=LAWD_CODE.txt<br/>
+프로그램 알규먼트는 Main 함수의 인자로 넘어오는 부분인데, 스프링 에플리케이션이 알아서 잘 처리하겠지만
+-- 이렇게 하이픈을 2개하면 application.yml에 설정한 부분에 사용된다고 한다.
+<br/>?? 솔직히 차이 잘 모른다.
+
+<br/><br/>
+실제 빌드하고 실행시키기 위해서는 다음과 같이 하여야한다.
+java -jar -Dspring.profiles.active=local house-batch-skj-0.0.1-SNAPSHOT.jar --spring.batch.job.names=lawdInsertJob -filePath=LAWD_CODE.txt
+이러면 뭔가 차이가 느껴지긴하는데... ㅎㅎ 
+하여튼 VM argument는 jvm 에 전해져 VM 인프라를 구성해 무엇을 할지 결정하고, 더 나아가 heap size, 디버깅 설정등을 할 수 있다.
+<br/>Program Argument는 jar실행시 main함수의 인자로 정해지는 파라메터로 -- 하이픈 2개 사용하면 spring boot app 개발시 application.yml 속성 값을 오버라이딩 할 수 있다.
+<br/>
+<br/>이렇게 안하고 그냥 환경변수(export a=anyeonhaseyo) 써서 하는 경우도 있다.
+<br/>사용할 떄는 spring.somting={a:-jalgaseyo} => a환경변수 값, 없으면 -뒤에 부분
 </div>
 </div>

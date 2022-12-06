@@ -64,4 +64,7 @@ public class HouseBatchJpaConfig {
 <h5>3.엔티티 클래스 생성 - Lawd entity, Repository  생성</h5>
 <div>Lawd Entity 구현 시 @Created,@LastUpdated 는 삽입 수정 시 해당 필드에 시간을 기록</div>
 <div>사용하기 위해서는 JpaAuditing 기능을 활성화 해야한다.</div>
+
+<h5>4. @EnableBatchProcessing 추가</h5>
+<div>스프링 배치를 구현하는데 필요한, JobBuilderFactory, 잡생성 등을 사용할 수 있게 해준다.</div>
 </div>

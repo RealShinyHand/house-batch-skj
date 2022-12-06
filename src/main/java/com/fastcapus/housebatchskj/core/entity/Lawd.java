@@ -29,7 +29,7 @@ public class Lawd {
 
     //법정동의 내용
     @Column(nullable = false)
-    private String lawd_dong;
+    private String lawdDong;
 
     //존재 여부
     @Column(nullable = false)

@@ -42,4 +42,26 @@
 </td>
 </tr>
 </tbody>
+
+
 </table>
+
+<div>
+<h3>동 코드 마이그레이션 배치</h3>
+<h5>1. https://www.code.go.kr/index.do 에서 받은 파일을 메모장으로 열고 UTF-8로 저장 후 resources 에 저장</h5>
+<h5>2. Configuration Class 설정
+    <p style="background-color:#EEEEEE;">
+<div>
+<pre>
+@Configuration
+@EnableJpaAuditing
+public class HouseBatchJpaConfig {
+}
+</pre>
+<p>JPA Auditing 기능을 설정한다. JPA 에서 지원하는 자동 로직 기능을 이용할 수 있음 <br/>
+여기서는 created와 updated를 위해 사용한다.</p>
+</div>
+<h5>3.엔티티 클래스 생성 - Lawd entity, Repository  생성</h5>
+<div>Lawd Entity 구현 시 @Created,@LastUpdated 는 삽입 수정 시 해당 필드에 시간을 기록</div>
+<div>사용하기 위해서는 JpaAuditing 기능을 활성화 해야한다.</div>
+</div>

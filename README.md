@@ -67,4 +67,10 @@ public class HouseBatchJpaConfig {
 
 <h5>4. @EnableBatchProcessing 추가</h5>
 <div>스프링 배치를 구현하는데 필요한, JobBuilderFactory, 잡생성 등을 사용할 수 있게 해준다.</div>
+<h5>5. FlatFileItemReaderBuilder 와 이것에 사용할 FieldSetMapper 구현,JobParameterValidator도 구현</h5>
+<div>
+아이템 리더 -  package com.fastcapus.housebatchskj.job.lawd; <br/>
+필드 셋 맵퍼 - package com.fastcapus.housebatchskj.job.lawd;<br/>
+바리데이터 - 
+</div>
 </div>

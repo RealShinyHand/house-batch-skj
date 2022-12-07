@@ -2,6 +2,7 @@ package com.fastcapus.housebatchskj.job.lawd;
 
 import com.fastcapus.housebatchskj.core.dto.LawdDto;
 import com.fastcapus.housebatchskj.core.entity.Lawd;
+import com.fastcapus.housebatchskj.core.service.LawdService;
 import com.fastcapus.housebatchskj.job.validator.FilePathParameterValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.util.List;
 
 @Configuration
@@ -29,6 +31,7 @@ import java.util.List;
 public class LawdInsertJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private final LawdService lawdService;
 
     @Bean(name="lawdInsertJob")
     public Job lawdInsertJob(
@@ -56,6 +59,7 @@ public class LawdInsertJobConfig {
     @Bean("flatFileItemReader")
     @StepScope
     public FlatFileItemReader<LawdDto> flatFileItemReader(@Value("#{jobParameters['filePath']}") String filePath){
+
         return new FlatFileItemReaderBuilder<LawdDto>()
                 .name("flatFileItemReader")
                 .delimited() //딜리미터 사용하기 위해서
@@ -73,7 +77,7 @@ public class LawdInsertJobConfig {
         return new ItemWriter<LawdDto>() {
             @Override
             public void write(List<? extends LawdDto> items) throws Exception {
-                items.forEach(System.out::println);
+                items.forEach(lawdService::upsert);
             }
         };
     }

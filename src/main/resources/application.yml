@@ -2,6 +2,7 @@ spring:
   batch:
     job:
       names: ${job.name:NONE}
+
 ---
 spring:
   config:
@@ -21,6 +22,11 @@ spring:
   batch:
     jdbc:
       initialize-schema: ALWAYS
+external:
+  apartment-api:
+    path: 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade'
+    service-key: 'EDFpt5i3MicX3UPZvZI3%2FnQp%2FIdTrJ2CXcC3rdVwx9j90i%2FGoZI8A3PJQGR%2F%2B4AomyTOKOL7nA9O5z3OWkxCoQ%3D%3D'
+
 ---
 spring:
   config:

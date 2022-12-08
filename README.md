@@ -154,3 +154,21 @@ java -jar -Dspring.profiles.active=local house-batch-skj-0.0.1-SNAPSHOT.jar --sp
 <br/>사용할 떄는 spring.somting={a:-jalgaseyo} => a환경변수 값, 없으면 -뒤에 부분
 </div>
 </div>
+<h5>6. Writer 구현을 하여 DB에 저장 , Service 개발</h5>
+<div>
+<pre>
+    @Transactional
+    public void upsert(LawdDto lawdDto){
+        Lawd saved = lawdRepository.findByLawdCd(lawdDto.getLawdCd())
+                //.orElseGet(()->new Lawd());
+                .orElse(mapLawdDtoToLawd(lawdDto));
+        lawdRepository.save(saved);
+    }
+</pre>
+우선 동 코드를 이용하여 DB 조회, 없으면 그냥 저장
+있으면 받아온 데이터로 업데이트 후 저장
+</div>
+<hr/>
+<h3>아파트 매매 정보 받아오기</h3>
+package com.fastcapus.housebatchskj.job.apt;
+package com.fastcapus.housebatchskj.adapter;

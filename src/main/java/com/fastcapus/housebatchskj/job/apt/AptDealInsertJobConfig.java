@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -52,11 +53,13 @@ public class AptDealInsertJobConfig {
     @StepScope
     @Bean("aptDealResourceReader")
     public StaxEventItemReader<AptDealDto> aptDealResourceReader(
-            Jaxb2Marshaller aptDealDtoMarshaller
+            Jaxb2Marshaller aptDealDtoMarshaller,
+            @Value("#{jobParameters['yearMonth']}") String yearMonth,
+            @Value("#{jobParameters['lawdCd']}") String lawdCd
     ){
         return new StaxEventItemReaderBuilder<AptDealDto>()
                 .name("aptDealResourceReader")
-                .resource(apartApiResource.getResources("41135", YearMonth.of(2021,7)))
+                .resource(apartApiResource.getResources(lawdCd, YearMonth.parse(yearMonth)))
                 .addFragmentRootElements("item")
                 .unmarshaller(aptDealDtoMarshaller)
                 .build();

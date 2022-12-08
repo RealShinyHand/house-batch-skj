@@ -2,14 +2,17 @@ package com.fastcapus.housebatchskj.job.apt;
 
 import com.fastcapus.housebatchskj.adapter.ApartApiResource;
 import com.fastcapus.housebatchskj.core.dto.AptDealDto;
+import com.fastcapus.housebatchskj.job.validator.LawdCdParameterValidator;
 import com.fastcapus.housebatchskj.job.validator.YearMonthParameterValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParametersValidator;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.CompositeJobParametersValidator;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.xml.StaxEventItemReader;
@@ -22,6 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import java.time.YearMonth;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,7 +39,7 @@ public class AptDealInsertJobConfig {
         return jobBuilderFactory.get("aptDealInsertJob")
                 .start(aptDealInsertStep)
                 .incrementer(new RunIdIncrementer())
-                .validator(new YearMonthParameterValidator())
+                .validator(validator())
                 .build();
     }
 
@@ -83,6 +87,11 @@ public class AptDealInsertJobConfig {
         return jaxb2Marshaller;
     }
 
+    private JobParametersValidator validator(){
+        CompositeJobParametersValidator validator = new CompositeJobParametersValidator();
+        validator.setValidators(List.of(new YearMonthParameterValidator(),new LawdCdParameterValidator()));
+        return validator;
+    }
 
 
 

@@ -15,12 +15,12 @@ public class YearMonthParameterValidator implements JobParametersValidator {
     public void validate(JobParameters parameters) throws JobParametersInvalidException {
         String yearMonth = parameters.getString(YEAR_MONTH);
         if(!StringUtils.hasText(yearMonth)){
-            throw new JobParametersInvalidException(YEAR_MONTH + "is not valid , input = "+ yearMonth);
+            throw new JobParametersInvalidException(YEAR_MONTH + " is not valid , input = "+ yearMonth);
         }
         try{
             YearMonth.parse(yearMonth);
         }catch (DateTimeParseException dpe){
-            throw new JobParametersInvalidException(YEAR_MONTH + "can't parse so \"yyyy-MM\" checking format, input = " + yearMonth);
+            throw new JobParametersInvalidException(YEAR_MONTH + " can't parse so \"yyyy-MM\" checking format, input = " + yearMonth);
         }
 
     }

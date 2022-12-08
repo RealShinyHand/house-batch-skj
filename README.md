@@ -170,5 +170,82 @@ java -jar -Dspring.profiles.active=local house-batch-skj-0.0.1-SNAPSHOT.jar --sp
 </div>
 <hr/>
 <h3>아파트 매매 정보 받아오기</h3>
-package com.fastcapus.housebatchskj.job.apt;
-package com.fastcapus.housebatchskj.adapter;
+package com.fastcapus.housebatchskj.job.apt; -- api Job Configuration<br/>
+package com.fastcapus.housebatchskj.adapter; -- api 호출하는 URL Resource 주는 객체<br/>
+
+<ul>
+<li>StaxEventItemReader 를 통해 XML 파싱
+<pre>
+    @StepScope
+    @Bean("aptDealResourceReader")
+    public StaxEventItemReader<AptDealDto> aptDealResourceReader(
+            Jaxb2Marshaller aptDealDtoMarshaller,
+            @Value("#{jobParameters['yearMonth']}") String yearMonth,
+            @Value("#{jobParameters['lawdCd']}") String lawdCd
+    ){
+        return new StaxEventItemReaderBuilder<AptDealDto>()
+                .name("aptDealResourceReader")
+                .resource(apartApiResource.getResources(lawdCd, YearMonth.parse(yearMonth)))
+                .addFragmentRootElements("item")
+                .unmarshaller(aptDealDtoMarshaller)
+                .build();
+    }
+</pre>
+<div>
+FragmentRootElements : xml 태그 요소 지정, 여기서는 아파트 매매 정보가 &lt item&gt ... &lt /item&gt 안에 있음으로 요소의 루트를 item으로 지정
+</div>
+<div>
+marshaller : 맵핑할 클래스를 지정
+</div>
+</li>
+<li>Jaxb2Marshaller 사용법 
+<div><br/>
+패키지는 이거 3개 추가하니깐 되더라. <br/>
+	implementation 'org.springframework:spring-oxm' <br/>
+	implementation 'javax.xml.bind:jaxb-api:2.3.1' <br/>
+	implementation 'javax.activation:activation:1.1.1' <br/>
+</div>
+<pre>    @StepScope
+    @Bean
+    public Jaxb2Marshaller aptDealDtoMarshaller(){
+        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
+        jaxb2Marshaller.setClassesToBeBound(AptDealDto.class);
+        return jaxb2Marshaller;
+    }
+----------------------
+
+@ToString
+@Getter
+@XmlRootElement(name="item")
+public class AptDealDto {
+
+    //거래 금액
+    @XmlElement(name="거래금액")
+    private String dealAmount;
+    //건축년도
+    @XmlElement(name="건축년도")
+    private Integer builtYear;
+    //년
+........
+}
+</pre>
+</li>
+<li>
+CompositeJobParametersValidator
+<div>
+Job 실행 시 파라메터를 검사하는 것을 지정할 수 있는데, 
+JobBuilderFactory에는 하나 밖에 지정을 못하더라.
+그래서 아래와 같이 해야한다.
+<pre>
+    private JobParametersValidator validator(){
+        CompositeJobParametersValidator validator = new CompositeJobParametersValidator();
+        validator.setValidators(List.of(new YearMonthParameterValidator(),new LawdCdParameterValidator()));
+        return validator;
+    }
+</pre>
+구조를 보니깐, GoF CompositePattern이랑 동일한다. 
+Component 와 Componet를 관리하는? 객체가 동일 메서드(validate)로 클라이언트에서 호출되나, 
+Composite는 자신의 필드에 속한 모든 Leaf를 호출하는 식으로 되어 있더라. 
+</div>
+</li>
+</ul>

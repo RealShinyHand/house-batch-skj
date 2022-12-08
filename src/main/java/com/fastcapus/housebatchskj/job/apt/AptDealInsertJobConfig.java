@@ -2,6 +2,7 @@ package com.fastcapus.housebatchskj.job.apt;
 
 import com.fastcapus.housebatchskj.adapter.ApartApiResource;
 import com.fastcapus.housebatchskj.core.dto.AptDealDto;
+import com.fastcapus.housebatchskj.job.validator.YearMonthParameterValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -34,6 +35,7 @@ public class AptDealInsertJobConfig {
         return jobBuilderFactory.get("aptDealInsertJob")
                 .start(aptDealInsertStep)
                 .incrementer(new RunIdIncrementer())
+                .validator(new YearMonthParameterValidator())
                 .build();
     }
 

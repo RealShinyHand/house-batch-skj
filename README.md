@@ -246,6 +246,34 @@ JobBuilderFactory에는 하나 밖에 지정을 못하더라.
 구조를 보니깐, GoF CompositePattern이랑 동일한다. 
 Component 와 Componet를 관리하는? 객체가 동일 메서드(validate)로 클라이언트에서 호출되나, 
 Composite는 자신의 필드에 속한 모든 Leaf를 호출하는 식으로 되어 있더라. 
+
+<li>
+StepContribution,ChunkContext
+<div>
+Tasklet에서는  위와 같은 파라메터를 받는다.
+위의 두 인자를 통해, Step의 상태 설정과 Job,Step 간 데이터를 공유할 수 있다. 
+근데 나는 많은 문제를 겪었고 이를 여기서 서술하겠다. <br/>
+
+contribution.setExitStatus(new ExitStatus("QWE"));
+chunkContext.getStepContext().getStepExecution().setExitStatus(ExitStatus.FAILED);
+https://devfunny.tistory.com/483
+위 블로그에서 contribution 과 chunkContext 차이는
+아직 키밋되지 않은 현재 트랜잭션에 대한 정보, 실행 시점의 잡 상태 제공이라고 한다. 
+그래서 Step의 상태는 누가 조절하는데? 가 궁금하여 실험해보니
+위 코드에서는 QWE가 나왔다. 그렇다고 FAILED가 완전히 적용이 안되는 것은 아니였다. QWE 상태 지정 코드를
+지우면 FAILED라고 리스터 afterStep에 뜬다. 우선 순위차이인 것이였다. 
+<br/>
+<br/>
+법정동 코드당 API 요청을 해야했기에 Step을 나눠 첫 Step에서는 법정동 코드를 읽어오고
+두번쨰에서는 법정동 코드롤 API 호출을 해, 아파트 매매 정보를 받아왔다. 거기서 Chunk를 순차적으로 하기 위해
+첫 스텝에서 하나의 법정동 코드만 넘겨주고, 두번쨰 스텝에서는 하나의 법정동 코드로 API호출하게 Flow를 만들어서 했다.
+첫 스텝에서 스텝 상태를 조절해 FLOW를 구현했는데, 
+ExitStatus.EXECUTING 을 보고 나는 의미상으로 아직 끝나지 않았고 다시 호출 시 다음 법정동 코드를 주는 로직이길래 이 상태 코드를
+넘겨주면 될 줄 알았는데.... 결과는 COMPLETED로 변환되어 상태가 반환되었다??? 
+그래서 결국 new ExitStatus("CONTINUABLE")로 바꿨다.
+</div>
+</li>
+
 </div>
 </li>
 </ul>

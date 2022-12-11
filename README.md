@@ -272,6 +272,9 @@ ExitStatus.EXECUTING 을 보고 나는 의미상으로 아직 끝나지 않았�
 넘겨주면 될 줄 알았는데.... 결과는 COMPLETED로 변환되어 상태가 반환되었다??? 
 그래서 결국 new ExitStatus("CONTINUABLE")로 바꿨다.
 </div>
+<div>
+나머지는 아파트에 맞게 거래내역 저장하면된다.
+</div>
 </li>
 
 </div>

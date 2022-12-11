@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @ToString
 @Getter
@@ -65,7 +66,7 @@ public class AptDealDto {
     }
 
     public Boolean getDealCanceled(){
-        return "0".equals(this.dealCanceled);
+        return "O".equals(this.dealCanceled);
     }
 
     public LocalDate getDealCanceledDate(){
@@ -75,5 +76,9 @@ public class AptDealDto {
 
 
         return LocalDate.parse(this.dealCanceldDate.trim(), DateTimeFormatter.ofPattern("yy.MM.dd"));
+    }
+
+    public String getJibun(){
+        return Optional.ofNullable(jibun).orElse("");
     }
 }

@@ -3,6 +3,7 @@ package com.fastcapus.housebatchskj.job.apt;
 import com.fastcapus.housebatchskj.adapter.ApartApiResource;
 import com.fastcapus.housebatchskj.core.dto.AptDealDto;
 import com.fastcapus.housebatchskj.core.repository.LawdRepository;
+import com.fastcapus.housebatchskj.core.service.ApartDealService;
 import com.fastcapus.housebatchskj.job.validator.LawdCdParameterValidator;
 import com.fastcapus.housebatchskj.job.validator.YearMonthParameterValidator;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class AptDealInsertJobConfig {
     private final StepBuilderFactory stepBuilderFactory;
     private final ApartApiResource apartApiResource;
     private final LawdRepository lawdRepository;
+    private final ApartDealService apartDealService;
     @Bean("aptDealInsertJob")
     public Job aptDealInsertJob(
             @Qualifier("aptDealInsertStep") Step aptDealInsertStep,
@@ -83,7 +85,7 @@ public class AptDealInsertJobConfig {
     @Bean("aptDealWriter")
     public ItemWriter<AptDealDto> aptDealWriter(){
         return (items)->{
-          items.forEach(System.out::println);
+          items.forEach(apartDealService :: upsert);
         };
     }
 

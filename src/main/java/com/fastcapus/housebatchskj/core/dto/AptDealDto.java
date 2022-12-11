@@ -1,11 +1,14 @@
 package com.fastcapus.housebatchskj.core.dto;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @ToString
 @Getter
@@ -50,5 +53,27 @@ public class AptDealDto {
     private String dealCanceldDate;
     //해제 여부
     @XmlElement(name="해제여부")
-    private String daelCanceled;
+    private String dealCanceled;
+
+    public LocalDate getDealDate(){
+        return LocalDate.of(this.year,this.month,this.day);
+    }
+
+    public Long getNumberDealAmount(){
+        String amount = this.dealAmount.replaceAll(",","").trim();
+        return Long.parseLong(amount);
+    }
+
+    public Boolean getDealCanceled(){
+        return "0".equals(this.dealCanceled);
+    }
+
+    public LocalDate getDealCanceledDate(){
+        if(StringUtils.isBlank(this.dealCanceldDate)){
+            return null;
+        }
+
+
+        return LocalDate.parse(this.dealCanceldDate.trim(), DateTimeFormatter.ofPattern("yy.MM.dd"));
+    }
 }

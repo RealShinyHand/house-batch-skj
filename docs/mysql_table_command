@@ -25,7 +25,7 @@ create table table_apt_deal(
 	apt_deal_id int auto_increment primary key,
     apt_id bigint not null,
     exclusive_area double not null,
-    deal_data date not null,
+    deal_date date not null,
     deal_amount bigint not null,
     floor int not null,
     deal_canceled tinyint(1) default 0 not null,

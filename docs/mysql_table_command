@@ -22,7 +22,7 @@ create table table_apt(
 );
 
 create table table_apt_deal(
-	pat_deal_id int auto_increment primary key,
+	apt_deal_id int auto_increment primary key,
     apt_id bigint not null,
     exclusive_area double not null,
     deal_data date not null,
